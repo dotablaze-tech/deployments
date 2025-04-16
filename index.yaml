@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  meowbot:
+  - apiVersion: v2
+    appVersion: 0.0.0
+    created: "2025-04-16T02:31:13.137103317Z"
+    description: A Helm chart for Kubernetes
+    digest: eabebcf825406c0937e24752d2b2584c6a3d709774125cbc27c883ab36b7eeeb
+    name: meowbot
+    type: application
+    urls:
+    - https://github.com/dotablaze-tech/deployments/releases/download/meowbot-0.1.0/meowbot-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-04-16T02:31:13.137113717Z"

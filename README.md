@@ -144,7 +144,7 @@ apps:
 
 ### 🧩 [dotablaze-tech/platform](https://github.com/dotablaze-tech/platform)
 
-Main monorepo for the Dotablaze platform, containing services, libraries, and tooling.
+Main monorepo for the Dotablaze Tech platform, containing services, libraries, and tooling.
 
 - 🚀 Micro frontends & backends
 - 🧱 Angular, Golang, Java

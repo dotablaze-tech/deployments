@@ -7,6 +7,7 @@
 <details open>
 <summary>📦 Helm Chart App Versions</summary>
 
+[![meowbot Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=meowbot)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
 
 </details>
 
@@ -26,6 +27,7 @@ This repository powers the GitOps-driven deployment layer for the Dotablaze plat
 ├── envs/                 📦 Environment-specific app configs (dev/staging/prod)
 ├── charts/               🛠️ Helm charts for Dotablaze services
 ├── excluded/             🧪 Experimental or disabled charts
+├── bootstrap.yaml        ⚙️ Main app configuration
 ├── LICENSE               📄 License information
 └── README.md             📝 This file
 ```
@@ -41,7 +43,7 @@ This repo is designed for use with Argo CD and `ApplicationSet`, which dynamical
 
 ```yaml
 apps:
-  - appName: core-dev
+  - appName: meowbot-dev
     helmPath: charts/core
     namespace: dev
     values:

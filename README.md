@@ -15,8 +15,9 @@
 
 ## 🧭 Overview
 
-This repository powers the GitOps-driven deployment layer for the Dotablaze platform. It contains Helm charts, ArgoCD
-`ApplicationSet` configurations, and environment-specific overrides to manage and automate deployments across clusters.
+This repository powers the GitOps-driven deployment layer for the Dotablaze Tech platform. It contains Helm charts,
+ArgoCD `ApplicationSet` configurations, and environment-specific overrides to manage and automate deployments across
+clusters.
 
 ---
 
@@ -25,7 +26,7 @@ This repository powers the GitOps-driven deployment layer for the Dotablaze plat
 ```text
 .
 ├── envs/                 📦 Environment-specific app configs (dev/staging/prod)
-├── charts/               🛠️ Helm charts for Dotablaze services
+├── charts/               🛠️ Helm charts for Dotablaze Tech services
 ├── excluded/             🧪 Experimental or disabled charts
 ├── bootstrap.yaml        ⚙️ Main app configuration
 ├── LICENSE               📄 License information

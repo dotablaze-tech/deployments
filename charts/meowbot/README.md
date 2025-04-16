@@ -1,7 +1,7 @@
 # meowbot Helm Chart
 
 [![Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=Chart)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
-[![Dev Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2Fvalues-dev.yaml&query=%24.image.tag&prefix=v&label=Dev)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-dev.yaml)
+[![Dev Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=Chart)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-dev.yaml)
 [![Prod Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2Fvalues-prd.yaml&query=%24.image.tag&prefix=v&label=Prod)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-prd.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

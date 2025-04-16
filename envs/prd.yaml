@@ -1,0 +1,6 @@
+apps:
+  - appName: meowbot-prd
+    helmPath: charts/meowbot
+    namespace: prd
+    values:
+      - values-prd.yaml

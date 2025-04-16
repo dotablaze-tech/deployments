@@ -84,7 +84,7 @@ spec:
         targetRevision: main
         path: "{{ .helmPath }}"
       destination:
-        namespace: "{{ .namespace }}"
+        namespace: "{{ .namespace }}"~
         server: https://kubernetes.default.svc
       syncPolicy:
         automated:

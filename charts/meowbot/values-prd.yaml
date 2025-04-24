@@ -29,6 +29,9 @@ envs:
   MODE: production
   DEBUG: false
   DATABASE_URL: jdbc:postgresql://postgresql-cluster-prd-rw.database:5432/dbtech_prd
+  DATABASE_HOST: postgresql-cluster-prd-rw.database
+  DATABASE_PORT: 5432
+  DATABASE_NAME: dbtech_prd
 
 envSecrets:
   - secretKey: DATABASE_USER

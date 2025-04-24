@@ -96,8 +96,11 @@ envs:
   MODE: dev
   DEBUG: true
   API_PORT: 8080
-  DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_dev
   WHITELISTED_GUILDS: ""
+  DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_dev
+  DATABASE_HOST: postgresql-cluster-non-rw.database
+  DATABASE_PORT: 5432
+  DATABASE_NAME: dbtech_dev
 
 envSecrets:
   - secretKey: DATABASE_USER

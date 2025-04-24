@@ -29,6 +29,9 @@ envs:
   MODE: dev
   DEBUG: false
   DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_dev
+  DATABASE_HOST: postgresql-cluster-non-rw.database
+  DATABASE_PORT: 5432
+  DATABASE_NAME: dbtech_dev
 
 envSecrets:
   - secretKey: DATABASE_USER

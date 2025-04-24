@@ -26,11 +26,11 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 9100
-  targetPort: 9100
+  port: 8080
+  targetPort: 8080
 
 ingress:
-  enabled: false
+  enabled: true
   className: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -55,14 +55,14 @@ resources:
 
 livenessProbe:
   httpGet:
-    path: /health
+    path: /liveness
     port: http
   initialDelaySeconds: 5
   periodSeconds: 10
 
 readinessProbe:
   httpGet:
-    path: /health
+    path: /readiness
     port: http
   initialDelaySeconds: 5
   periodSeconds: 10
@@ -84,6 +84,31 @@ tolerations: []
 
 affinity: {}
 
-envs: {}
+externalSecrets:
+  - refreshInterval: 1m
+    secretStoreName: k8s-secret-store
+    secretName: meowbot-pg-default
+  - refreshInterval: 1m
+    secretStoreName: vault-secret-store
+    secretName: meowbot-default
 
-envSecrets: []
+envs:
+  MODE: dev
+  DEBUG: true
+  API_PORT: 8080
+  DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_dev
+  WHITELISTED_GUILDS: ""
+
+envSecrets:
+  - secretKey: DATABASE_USER
+    key: postgresql-cluster-non-app
+    property: username
+    secretName: meowbot-pg-default
+  - secretKey: DATABASE_PASSWORD
+    key: postgresql-cluster-non-app
+    property: password
+    secretName: meowbot-pg-default
+  - secretKey: DISCORD_BOT_TOKEN
+    key: dotablaze-tech-discord-bot-token
+    property: token
+    secretName: meowbot-default

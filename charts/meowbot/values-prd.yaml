@@ -1,6 +1,45 @@
 image:
-  tag: "0.1.0"
+  tag: "1.0.0"
 
-envs: {}
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: ss-clusterissuer
+  hosts:
+    - host: meowbot.prd.jdwkube.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - meowbot.prd.jdwkube.com
+      secretName: meowbot-prd-tls
 
-envSecrets: []
+externalSecrets:
+  - refreshInterval: 1m
+    secretStoreName: k8s-secret-store
+    secretName: meowbot-pg-prd
+  - refreshInterval: 1m
+    secretStoreName: vault-secret-store
+    secretName: meowbot-prd
+
+envs:
+  MODE: production
+  DEBUG: false
+  DATABASE_URL: jdbc:postgresql://postgresql-cluster-prd-rw.database:5432/dbtech_prd
+
+envSecrets:
+  - secretKey: DATABASE_USER
+    key: postgresql-cluster-prd-app
+    property: username
+    secretName: meowbot-pg-prd
+  - secretKey: DATABASE_PASSWORD
+    key: postgresql-cluster-prd-app
+    property: password
+    secretName: meowbot-pg-prd
+  - secretKey: DISCORD_BOT_TOKEN
+    key: dotablaze-tech-discord-bot-token
+    property: token
+    secretName: meowbot-prd

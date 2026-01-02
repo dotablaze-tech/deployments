@@ -1,0 +1,48 @@
+image:
+  tag: ""
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: ss-clusterissuer
+  hosts:
+    - host: meowbot.non.jdwkube.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - meowbot.non.jdwkube.com
+      secretName: meowbot-non-tls
+
+externalSecrets:
+  - refreshInterval: 1m
+    secretStoreName: k8s-secret-store
+    secretName: meowbot-pg-non
+  - refreshInterval: 1m
+    secretStoreName: vault-secret-store
+    secretName: meowbot-non
+
+envs:
+  MODE: non
+  DEBUG: false
+  DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_non
+  DATABASE_HOST: postgresql-cluster-non-rw.database
+  DATABASE_PORT: 5432
+  DATABASE_NAME: dbtech_non
+
+envSecrets:
+  - secretKey: DATABASE_USER
+    key: postgresql-cluster-non-app
+    property: username
+    secretName: meowbot-pg-non
+  - secretKey: DATABASE_PASSWORD
+    key: postgresql-cluster-non-app
+    property: password
+    secretName: meowbot-pg-non
+  - secretKey: DISCORD_BOT_TOKEN
+    key: dotablaze-tech-discord-bot-token
+    property: token
+    secretName: meowbot-non

@@ -48,7 +48,7 @@ apps:
     helmPath: charts/core
     namespace: dev
     values:
-      - values-dev.yaml
+      - values-non.yaml
 ```
 
 ### 🔧 ApplicationSet Template (Bootstrap)

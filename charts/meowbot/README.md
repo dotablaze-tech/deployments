@@ -1,7 +1,7 @@
 # meowbot Helm Chart
 
 [![Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=Chart)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
-[![Dev Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=Dev)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-dev.yaml)
+[![Non Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=Non)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-non.yaml)
 [![Prod Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2Fvalues-prd.yaml&query=%24.image.tag&prefix=v&label=Prod)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/values-prd.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -34,7 +34,7 @@ This chart is deployed by Argo CD using an `ApplicationSet` generator that maps 
 To deploy manually for testing:
 
 ```bash
-helm upgrade --install meowbot ./meowbot -f values-dev.yaml
+helm upgrade --install meowbot ./meowbot -f values-non.yaml
 ```
 
 To uninstall:
@@ -55,6 +55,7 @@ charts/
     ├── Chart.yaml
     ├── values.yaml
     ├── values-dev.yaml
+    ├── values-non.yaml
     ├── values-prd.yaml
     └── templates/
         ├── deployment.yaml

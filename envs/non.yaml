@@ -1,0 +1,6 @@
+apps:
+  - appName: meowbot-non
+    helmPath: charts/meowbot
+    namespace: non
+    values:
+      - values-non.yaml

@@ -1,6 +1,0 @@
-apps:
-  - appName: meowbot-dev
-    helmPath: charts/meowbot
-    namespace: dev
-    values:
-      - values-dev.yaml

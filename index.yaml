@@ -11,4 +11,15 @@ entries:
     urls:
     - https://github.com/dotablaze-tech/deployments/releases/download/meowbot-0.1.0/meowbot-0.1.0.tgz
     version: 0.1.0
-generated: "2025-04-16T02:31:13.137113717Z"
+  secret-store:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-04-04T05:48:41.405547198Z"
+    description: A Helm chart for Kubernetes
+    digest: 0fb1d697eafa7991ff113719217f4e6ada5818a3a618aded39020cd73b7d8088
+    name: secret-store
+    type: application
+    urls:
+    - https://github.com/dotablaze-tech/deployments/releases/download/secret-store-0.1.0/secret-store-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-04-04T05:48:41.405578466Z"

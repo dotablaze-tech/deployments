@@ -5,7 +5,7 @@
 [![Docs](https://img.shields.io/badge/docs-github--pages-blue)](https://dotablaze-tech.github.io/deployments/)
 [![meowbot Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=meowbot)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
 
-GitOps deployment repository for the `dotablaze-tech` tenant on the Jdwlabs platform. ArgoCD reads this repo via the
+GitOps deployment repository for the `dotablaze-tech` tenant on the dotablaze-tech platform. ArgoCD reads this repo via the
 `dotablaze-tech-deployments` ApplicationSet to deploy applications into tenant-owned namespaces.
 
 ## Repository Structure
@@ -28,7 +28,7 @@ deployments/
 
 ## How It Works
 
-The `dotablaze-deployments` ApplicationSet uses a matrix generator that:
+The `dotablaze-tech-deployments` ApplicationSet uses a matrix generator that:
 
 1. Scans `argocd/*/config.yaml` (one file per environment)
 2. Expands the `apps` array from each config file

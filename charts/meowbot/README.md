@@ -55,7 +55,6 @@ charts/
     ├── Chart.yaml
     ├── values.yaml
     ├── values-non.yaml
-    ├── values-non.yaml
     ├── values-prd.yaml
     └── templates/
         ├── deployment.yaml

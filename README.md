@@ -58,7 +58,7 @@ apps:
 | `namespace`  | Yes      | Target namespace for deployment (must be owned by tenant)    |
 | `chartPath`  | Yes      | Path to the Helm chart within the deployment repo            |
 | `syncWave`   | No       | Sync wave for ordering (default: "0")                        |
-| `valueFiles` | yes      | List of values files to use (base + environment-specific)    |
+| `valueFiles` | Yes      | List of values files to use (base + environment-specific)    |
 
 ## Adding a New App
 

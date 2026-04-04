@@ -5,7 +5,8 @@
 [![Docs](https://img.shields.io/badge/docs-github--pages-blue)](https://dotablaze-tech.github.io/deployments/)
 [![meowbot Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=meowbot)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
 
-GitOps deployment repository for the `dotablaze-tech` tenant on the dotablaze-tech platform. ArgoCD reads this repo via the
+GitOps deployment repository for the `dotablaze-tech` tenant on the dotablaze-tech platform. ArgoCD reads this repo via
+the
 `dotablaze-tech-deployments` ApplicationSet to deploy applications into tenant-owned namespaces.
 
 ## Repository Structure
@@ -46,18 +47,18 @@ apps:
     namespace: <tenant>-<ns>        # Must be a namespace the tenant owns
     chartPath: charts/<chart-name>  # Path to chart in the deployment repo
     syncWave: "0"                   # Default ordering (default: "0")
-    valuesFiles:
+    valueFiles:
       - values.yaml
       - values-<env>.yaml
 ```
 
-| Field         | Required | Description                                                  |
-|---------------|----------|--------------------------------------------------------------|
-| `name`        | Yes      | Unique name for the application (used in ArgoCD Application) |
-| `namespace`   | Yes      | Target namespace for deployment (must be owned by tenant)    |
-| `chartPath`   | Yes      | Path to the Helm chart within the deployment repo            |
-| `syncWave`    | No       | Sync wave for ordering (default: "0")                        |
-| `valuesFiles` | yes      | List of values files to use (base + environment-specific)    |
+| Field        | Required | Description                                                  |
+|--------------|----------|--------------------------------------------------------------|
+| `name`       | Yes      | Unique name for the application (used in ArgoCD Application) |
+| `namespace`  | Yes      | Target namespace for deployment (must be owned by tenant)    |
+| `chartPath`  | Yes      | Path to the Helm chart within the deployment repo            |
+| `syncWave`   | No       | Sync wave for ordering (default: "0")                        |
+| `valueFiles` | yes      | List of values files to use (base + environment-specific)    |
 
 ## Adding a New App
 
@@ -76,7 +77,7 @@ apps:
 
 | Environment | Namespace            | Config                   |
 |-------------|----------------------|--------------------------|
-| non         | `dotablaze-tech-non` | `argocd/non/config.yaml  | 
+| non         | `dotablaze-tech-non` | `argocd/non/config.yaml` | 
 | prd         | `dotablaze-tech-prd` | `argocd/prd/config.yaml` |
 
 ## Sync Wave Ordering
@@ -92,7 +93,7 @@ The following must exist in the cluster before deploying:
 
 - Tenant namespaces provisioned by the platform
 - External Secrets Operator (ESO) installed
-- Value accessible at `http://vault.vault.svc.cluster.local:8200`
+- Vault accessible at `http://vault.vault.svc.cluster.local:8200`
 - `vault-token` Kubernetes Secret in each app namespace
 - cert-manager with `letsencrypt-prod` ClusterIssuer
 - nginx ingress controller

@@ -23,7 +23,7 @@ environment-specific configuration for managing runtime secrets, autoscaling, in
   - `serviceaccount.yaml` – Optional service account
   - `NOTES.txt`, `tests/` – Installation notes and connectivity test
 - `values.yaml` – Base configuration
-- `values-dev.yaml`, `values-prd.yaml` – Environment-specific overrides
+- `values-non.yaml`, `values-prd.yaml` – Environment-specific overrides
 
 ---
 
@@ -54,7 +54,7 @@ charts/
 └── meowbot/
     ├── Chart.yaml
     ├── values.yaml
-    ├── values-dev.yaml
+    ├── values-non.yaml
     ├── values-non.yaml
     ├── values-prd.yaml
     └── templates/

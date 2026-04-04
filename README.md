@@ -1,167 +1,99 @@
-# Dotablaze Tech Platform Deployments
+# Deployments
 
 [![Deploy Pages](https://github.com/dotablaze-tech/deployments/actions/workflows/release.yaml/badge.svg)](https://github.com/dotablaze-tech/deployments/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docs](https://img.shields.io/badge/docs-github--pages-blue)](https://dotablaze-tech.github.io/deployments/)
-
-<details open>
-<summary>📦 Helm Chart App Versions</summary>
-
 [![meowbot Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=meowbot)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
 
-</details>
+GitOps deployment repository for the `dotablaze-tech` tenant on the Jdwlabs platform. ArgoCD reads this repo via the
+`dotablaze-tech-deployments` ApplicationSet to deploy applications into tenant-owned namespaces.
 
----
+## Repository Structure
 
-## 🧭 Overview
-
-This repository powers the GitOps-driven deployment layer for the Dotablaze Tech platform. It contains Helm charts,
-ArgoCD `ApplicationSet` configurations, and environment-specific overrides to manage and automate deployments across
-clusters.
-
----
-
-## 📁 Repository Structure
-
-```text
-.
-├── envs/                 📦 Environment-specific app configs (dev/staging/prod)
-├── charts/               🛠️ Helm charts for Dotablaze Tech services
-├── excluded/             🧪 Experimental or disabled charts
-├── bootstrap.yaml        ⚙️ Main app configuration
-├── LICENSE               📄 License information
-└── README.md             📝 This file
+```
+deployments/
+├── argocd/
+│   ├── non/
+│   │   └── config.yaml  # Defines apps for non-prod environment
+│   └── prd/
+│       └── config.yaml  # Defines apps for prod environment
+└── charts/
+    └── <chart-name>/
+        ├── Chart.yaml
+        ├── templates/
+        ├── values.yaml        # Base values
+        ├── values-non.yaml    # Non-prod overrides
+        └── values-prd.yaml    # Prod overrides
 ```
 
----
+## How It Works
 
-## 🚀 Continuous Delivery with Argo CD
+The `dotablaze-deployments` ApplicationSet uses a matrix generator that:
 
-This repo is designed for use with Argo CD and `ApplicationSet`, which dynamically syncs Helm-based apps defined under
-`envs/`.
+1. Scans `argocd/*/config.yaml` (one file per environment)
+2. Expands the `apps` array from each config file
+3. Creates an ArgoCD Application for each entry, named `dotablaze-tech-<name>`
 
-### 🧾 Example `dev.yaml`
+All apps use automated sync with prune, self-heal, `ServerSideApply`, and `PruneLast`.
+
+## Config Schema
+
+Each `argocd/<env>/config.yaml` contains:
 
 ```yaml
 apps:
-  - appName: meowbot-dev
-    helmPath: charts/core
-    namespace: dev
-    values:
-      - values-non.yaml
+  - name: <app-name>                # Unique name for the application
+    namespace: <tenant>-<ns>        # Must be a namespace the tenant owns
+    chartPath: charts/<chart-name>  # Path to chart in the deployment repo
+    syncWave: "0"                   # Default ordering (default: "0")
+    valuesFiles:
+      - values.yaml
+      - values-<env>.yaml
 ```
 
-### 🔧 ApplicationSet Template (Bootstrap)
+| Field         | Required | Description                                                  |
+|---------------|----------|--------------------------------------------------------------|
+| `name`        | Yes      | Unique name for the application (used in ArgoCD Application) |
+| `namespace`   | Yes      | Target namespace for deployment (must be owned by tenant)    |
+| `chartPath`   | Yes      | Path to the Helm chart within the deployment repo            |
+| `syncWave`    | No       | Sync wave for ordering (default: "0")                        |
+| `valuesFiles` | yes      | List of values files to use (base + environment-specific)    |
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: dotablaze-deployments
-  namespace: argocd
-spec:
-  goTemplate: true
-  goTemplateOptions: [ "missingkey=error" ]
-  generators:
-    - matrix:
-        generators:
-          - git:
-              repoURL: https://github.com/dotablaze-tech/deployments.git
-              revision: main
-              files:
-                - path: envs/*
-          - list:
-              elementsYaml: "{{ .apps | toJson }}"
-  template:
-    metadata:
-      name: "{{ .appName }}"
-      annotations:
-        argocd.argoproj.io/sync-wave: "1"
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/dotablaze-tech/deployments.git
-        targetRevision: main
-        path: "{{ .helmPath }}"
-      destination:
-        namespace: "{{ .namespace }}"~
-        server: https://kubernetes.default.svc
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - PruneLast=true
-  templatePatch: |
-    spec:
-      source:
-        helm:
-          valueFiles:
-            {{- toYaml .values | nindent 12 }}
-```
+## Adding a New App
 
----
+1. Create the Helm chart under `charts/<name>/`
+2. Add base `values.yaml` and per-environment `values-<env>.yaml` files
+3. Add an entry to each relevant `argocd/<env>/config.yaml`
+4. Commit and push to `main`
 
-## 🏗️ Adding a New Environment
+## Adding a New Environment
 
-1. Create a new file under `envs/`, e.g. `envs/staging.yaml`
-2. Define your applications like so:
+1. Create `argocd/<env>/config.yaml` with the app definitions
+2. Add `values-<env>.yaml` files for each chart as needed
+3. Ensure the namespace exists in the platform tenant config (`tenants/dotablaze-tech/tenant.yaml`)
 
-```yaml
-apps:
-  - appName: users-staging
-    helmPath: charts/users
-    namespace: staging
-    values:
-      - values-staging.yaml
-```
+## Environments
 
-3. Commit and push. ArgoCD will pick it up and deploy.
+| Environment | Namespace            | Config                   |
+|-------------|----------------------|--------------------------|
+| non         | `dotablaze-tech-non` | `argocd/non/config.yaml  | 
+| prd         | `dotablaze-tech-prd` | `argocd/prd/config.yaml` |
 
----
+## Sync Wave Ordering
 
-## 📦 Adding a New Helm Chart
+| Wave | Charts                                                    |
+|------|-----------------------------------------------------------|
+| 0    | secret-store (SecretStores + RBAC must exist before apps) |
+| 1    | All application charts (default)                          |
 
-1. Scaffold a chart:
+## Prerequisites
 
-   ```bash
-   helm create charts/<app-name>
-   ```
+The following must exist in the cluster before deploying:
 
-2. Customize `Chart.yaml`, `values.yaml`, and templates.
-3. Add the chart to one or more environments in `envs/`.
-4. Optionally add `values-dev.yaml`, `values-prod.yaml`, etc.
-5. Test your chart locally:
-
-   ```bash
-   helm install --dry-run --debug ./charts/<app-name>
-   ```
-
----
-
-## 🧱 Related Repositories
-
-### 🧩 [dotablaze-tech/platform](https://github.com/dotablaze-tech/platform)
-
-Main monorepo for the Dotablaze Tech platform, containing services, libraries, and tooling.
-
-- 🚀 Micro frontends & backends
-- 🧱 Angular, Golang, Java
-- 🔗 Integrated with K8s and containerized deployments
-
----
-
-## 🌍 Documentation
-
-Deployment and chart documentation is available via GitHub Pages:
-
-🔗 [**Dotablaze Deployments GitHub Pages**](https://dotablaze-tech.github.io/deployments/)
-
-Auto-updated via 🚀 [GitHub Actions](https://github.com/dotablaze-tech/deployments/actions/workflows/release.yaml)
-
----
-
-## 📄 License
-
-Licensed under the [MIT License](https://opensource.org/licenses/MIT). See the `LICENSE` file for details.
+- Tenant namespaces provisioned by the platform
+- External Secrets Operator (ESO) installed
+- Value accessible at `http://vault.vault.svc.cluster.local:8200`
+- `vault-token` Kubernetes Secret in each app namespace
+- cert-manager with `letsencrypt-prod` ClusterIssuer
+- nginx ingress controller
+- CNPG PostgreSQL clusters in the `database` namespace

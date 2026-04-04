@@ -1,0 +1,9 @@
+apps:
+  # --- NON environment ---
+  - name: meowbot-non
+    namespace: dotablaze-tech-non
+    chartPath: charts/meowbot
+    syncWave: "0"
+    valueFiles:
+      - values.yaml
+      - values-non.yaml

@@ -89,7 +89,7 @@ externalSecrets:
     secretStoreName: k8s-secret-store
     secretName: meowbot-pg-default
   - refreshInterval: 1m
-    secretStoreName: vault-secret-store
+    secretStoreName: vault
     secretName: meowbot-default
 
 envs:
@@ -97,18 +97,18 @@ envs:
   DEBUG: true
   API_PORT: 8080
   WHITELISTED_GUILDS: ""
-  DATABASE_URL: jdbc:postgresql://postgresql-cluster-non-rw.database:5432/dbtech_dev
-  DATABASE_HOST: postgresql-cluster-non-rw.database
+  DATABASE_URL: jdbc:postgresql://platform-postgresql-cluster-non-rw.database:5432/dotablazetech_non
+  DATABASE_HOST: platform-postgresql-cluster-non-rw.database
   DATABASE_PORT: 5432
-  DATABASE_NAME: dbtech_dev
+  DATABASE_NAME: dotablazetech_non
 
 envSecrets:
   - secretKey: DATABASE_USER
-    key: postgresql-cluster-non-app
+    key: platform-postgresql-cluster-non-app
     property: username
     secretName: meowbot-pg-default
   - secretKey: DATABASE_PASSWORD
-    key: postgresql-cluster-non-app
+    key: platform-postgresql-cluster-non-app
     property: password
     secretName: meowbot-pg-default
   - secretKey: DISCORD_BOT_TOKEN

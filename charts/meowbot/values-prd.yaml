@@ -22,24 +22,24 @@ externalSecrets:
     secretStoreName: k8s-secret-store
     secretName: meowbot-pg-prd
   - refreshInterval: 1m
-    secretStoreName: vault-secret-store
+    secretStoreName: vault
     secretName: meowbot-prd
 
 envs:
   MODE: production
   DEBUG: false
-  DATABASE_URL: jdbc:postgresql://postgresql-cluster-prd-rw.database:5432/dbtech_prd
-  DATABASE_HOST: postgresql-cluster-prd-rw.database
+  DATABASE_URL: jdbc:postgresql://platform-postgresql-cluster-prd-rw.database:5432/dotablazetech_prd
+  DATABASE_HOST: platform-postgresql-cluster-prd-rw.database
   DATABASE_PORT: 5432
-  DATABASE_NAME: dbtech_prd
+  DATABASE_NAME: dotablazetech_prd
 
 envSecrets:
   - secretKey: DATABASE_USER
-    key: postgresql-cluster-prd-app
+    key: platform-postgresql-cluster-prd-app
     property: username
     secretName: meowbot-pg-prd
   - secretKey: DATABASE_PASSWORD
-    key: postgresql-cluster-prd-app
+    key: platform-postgresql-cluster-prd-app
     property: password
     secretName: meowbot-pg-prd
   - secretKey: DISCORD_BOT_TOKEN

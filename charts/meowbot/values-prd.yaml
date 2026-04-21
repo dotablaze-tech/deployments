@@ -2,21 +2,8 @@ image:
   tag: "1.0.3"
 
 ingress:
-  enabled: true
-  useGatewayAPI: true
-  className: "nginx"
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
     - host: meowbot.prd.jdwlabs.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls:
-    - hosts:
-        - meowbot.prd.jdwlabs.com
-      secretName: meowbot-prd-tls
 
 externalSecrets:
   - refreshInterval: 1m

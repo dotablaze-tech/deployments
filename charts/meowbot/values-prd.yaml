@@ -34,3 +34,8 @@ envSecrets:
     key: dotablaze-tech-discord-bot-token
     property: token
     secretName: meowbot-prd
+
+# Opt-in for Reloader: comma-separated Secret names, matching the two
+# distinct secretName values among the envSecrets entries above.
+deploymentAnnotations:
+  secret.reloader.stakater.com/reload: "meowbot-pg-prd,meowbot-prd"

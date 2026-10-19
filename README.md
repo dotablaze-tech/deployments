@@ -80,6 +80,20 @@ apps:
 | non         | `dotablaze-tech-non` | `argocd/non/config.yaml` | 
 | prd         | `dotablaze-tech-prd` | `argocd/prd/config.yaml` |
 
+## Promoting to prd
+
+`prd` pins `image.tag` in `charts/<app>/values-prd.yaml` to `<tag>@sha256:<index digest>`, so a re-pushed tag cannot
+change what prod runs. [`promote-prd.yml`](.github/workflows/promote-prd.yml) opens the PR that moves it:
+
+- **Automatically** whenever a `Chart.yaml` changes on `main`, which is how the platform release lands a new
+  `appVersion`. The PR stays open until a code owner approves it, so verify the version in `non` first.
+- **By hand:** `gh workflow run promote-prd.yml -f app=meowbot [-f tag=1.0.6]`. Pass `tag=X.Y.Z@sha256:<digest>` to pin
+  an exact build, e.g. to roll back.
+
+The workflow resolves the digest with [`tools/resolve-image-digest.sh`](tools/resolve-image-digest.sh) and commits through
+the API so the commit is signed. With the `RELEASE_APP_ID` / `RELEASE_APP_PRIVATE_KEY` secrets, a GitHub App opens the
+PR and CI runs on it. Without them it falls back to `GITHUB_TOKEN`, whose PRs trigger no checks and cannot merge.
+
 ## Sync Wave Ordering
 
 | Wave | Charts                 |

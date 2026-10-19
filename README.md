@@ -100,3 +100,22 @@ The following must exist in the cluster before deploying (all managed by the pla
 - CNPG PostgreSQL clusters in the `database` namespace
 
 Secret stores are managed centrally by the platform - no per-tenant secret store setup is needed.
+
+## Branch Protection
+
+Rulesets live as code in [`.github/rulesets/`](.github/rulesets/). Edit the JSON, merge by PR, then apply from that
+directory with an admin `gh` login:
+
+```bash
+./apply.sh --dry-run   # diff every export against live
+./apply.sh             # apply; refuses changes that weaken protection without --allow-weakening
+```
+
+- **Baseline** (`main`): PR required, rebase merge only, linear history, no force-push or deletion, and the CI, scan
+  and signature checks must pass.
+- **PRD Promotion Review Gate** (`main`): code-owner review for the paths in [`CODEOWNERS`](.github/CODEOWNERS), which
+  are prod values and `argocd/prd/`.
+- **Branch Naming Convention**: branches start with `feat/`, `fix/`, `chore/`, `docs/` and similar, or `renovate/`.
+- **Release Tag Protection**: tags cannot be deleted or moved.
+
+Org admins bypass all rulesets. The platform release job's `appVersion` push depends on that bypass.

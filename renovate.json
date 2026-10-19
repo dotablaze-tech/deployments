@@ -1,0 +1,16 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Renovate owns dependency updates for this repo; Dependabot only reports alerts.",
+    "No auto-merge: in this GitOps repo a merge is a deploy, so every update waits for review.",
+    "The meowbot image is a first-party release pin, moved by the platform release flow and prd promotion PRs."
+  ],
+  "extends": ["github>jdwlabs/.github"],
+  "packageRules": [
+    {
+      "description": "First-party image, released from dotablaze-tech/platform.",
+      "matchPackageNames": ["dotablaze/meowbot"],
+      "enabled": false
+    }
+  ]
+}

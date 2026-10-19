@@ -1,0 +1,208 @@
+name: Promote PRD
+
+# Opens a pull request that pins a chart's prd image to <tag>@sha256:<index
+# digest> in values-prd.yaml. prd changes only through these PRs, which the
+# PRD Promotion Review Gate holds for a code-owner review.
+#
+# Triggers:
+# - push to main touching a Chart.yaml: the platform release bumps appVersion
+#   there, so every release that reaches non gets a promotion proposal.
+# - workflow_dispatch: promote one chart, optionally to an explicit tag
+#   (defaults to its appVersion; a tag@sha256:<digest> is used as given, which
+#   is how a rollback pins an older build).
+#
+# The commit goes through the contents API, so GitHub signs it. With the
+# RELEASE_APP_* secrets the bot app authors the PR and CI runs on it; the
+# GITHUB_TOKEN fallback opens a PR that triggers no workflows.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/*/Chart.yaml'
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Chart directory under charts/ (e.g. meowbot)'
+        required: true
+        type: string
+      tag:
+        description: 'Image tag (defaults to the chart appVersion); tag@sha256:<digest> pins an exact build'
+        required: false
+        type: string
+        default: ''
+
+permissions: {}
+
+# Two runs must never rebuild the same promotion branch at once.
+concurrency:
+  group: promote-prd
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # Used only by the GITHUB_TOKEN fallback.
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check for promotion bot credentials
+        id: creds
+        env:
+          APP_ID: ${{ secrets.RELEASE_APP_ID }}
+        run: |
+          if [ -n "${APP_ID}" ]; then
+            echo "has-app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-app=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::RELEASE_APP_ID / RELEASE_APP_PRIVATE_KEY are not set. Falling back to GITHUB_TOKEN: the PR will not trigger CI, so its required checks never report."
+          fi
+
+      - name: Generate promotion bot token
+        id: bot-token
+        if: ${{ steps.creds.outputs.has-app == 'true' }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: deployments
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Determine promotion candidates
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_APP: ${{ inputs.app }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          # Both values reach file paths, refs and a sed replacement, so they
+          # are validated first; the tag grammar admits no sed metacharacters.
+          valid_app() { [[ "$1" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; }
+          valid_tag() { [[ "$1" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}(@sha256:[a-f0-9]{64})?$ ]]; }
+          app_version() {
+            sed -n 's/^appVersion:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}[[:space:]]*$/\1/p' "charts/$1/Chart.yaml" | head -1
+          }
+          prd_tag() {
+            sed -n '/^image:/,/^[^[:space:]]/ s/^  tag:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}[[:space:]]*$/\1/p' "charts/$1/values-prd.yaml" | head -1
+          }
+          image_repository() {
+            sed -n '/^image:/,/^[^[:space:]]/ s/^  repository:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}[[:space:]]*$/\1/p' "$1" | head -1
+          }
+          # Docker Hub tags are mutable; only the digest pins what prd runs.
+          pin() {
+            local app="$1" tag="$2" repo digest
+            case "$tag" in *@sha256:*) printf '%s' "$tag"; return 0 ;; esac
+            repo=$(image_repository "charts/${app}/values-prd.yaml")
+            [ -n "$repo" ] || repo=$(image_repository "charts/${app}/values.yaml")
+            [ -n "$repo" ] || { echo "::error::[${app}] no image.repository to resolve '${tag}' against." >&2; return 1; }
+            digest=$(bash tools/resolve-image-digest.sh "$repo" "$tag") || return 1
+            printf '%s@%s' "$tag" "$digest"
+          }
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            valid_app "$INPUT_APP" || { echo "::error::invalid app '${INPUT_APP}'."; exit 1; }
+            [ -f "charts/${INPUT_APP}/values-prd.yaml" ] || { echo "::error::charts/${INPUT_APP}/values-prd.yaml not found."; exit 1; }
+            apps="$INPUT_APP"
+          else
+            apps=$(for f in charts/*/values-prd.yaml; do basename "$(dirname "$f")"; done)
+          fi
+
+          : > candidates.txt
+          failed=0
+          for app in $apps; do
+            tag="${INPUT_TAG:-$(app_version "$app")}"
+            if ! valid_tag "$tag"; then
+              echo "::error::[${app}] '${tag}' is not a valid image tag."
+              failed=1
+              continue
+            fi
+            # On push, a chart whose prd pin already carries this appVersion
+            # (bare or digest-pinned) has nothing new to promote.
+            current=$(prd_tag "$app")
+            if [ "$EVENT" = "push" ] && [ "${current%%@*}" = "${tag%%@*}" ]; then
+              echo "[${app}] prd already runs ${tag}."
+              continue
+            fi
+            if ! ref=$(pin "$app" "$tag"); then
+              echo "::error::[${app}] could not resolve '${tag}' to a digest; prd never pins a bare tag."
+              failed=1
+              continue
+            fi
+            echo "$app $ref" >> candidates.txt
+          done
+          echo "Promotion candidates:"
+          cat candidates.txt
+          exit "$failed"
+
+      - name: Open promotion pull requests
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token || github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          prd_tag() {
+            sed -n '/^image:/,/^[^[:space:]]/ s/^  tag:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}[[:space:]]*$/\1/p' "charts/$1/values-prd.yaml" | head -1
+          }
+          main_sha=$(gh api "repos/${REPO}/git/ref/heads/main" --jq .object.sha)
+
+          while read -r app ref; do
+            [ -n "$app" ] || continue
+            file="charts/${app}/values-prd.yaml"
+            current=$(prd_tag "$app")
+            if [ "$current" = "$ref" ]; then
+              echo "[${app}] prd already pins ${ref}."
+              continue
+            fi
+
+            # Rebuilt from main every run, so the PR stays one clean commit.
+            branch="chore/promote-${app}-prd"
+            if gh api "repos/${REPO}/git/ref/heads/${branch}" >/dev/null 2>&1; then
+              gh api -X PATCH "repos/${REPO}/git/refs/heads/${branch}" -f sha="$main_sha" -F force=true >/dev/null
+            else
+              gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${branch}" -f sha="$main_sha" >/dev/null
+            fi
+
+            # Only the top-level image.tag line may change.
+            cp "$file" /tmp/before.yaml
+            sed -i "/^image:/,/^[^[:space:]]/ s|^\(  tag:[[:space:]]*\).*|\1\"${ref}\"|" "$file"
+            changed=$(diff /tmp/before.yaml "$file" | grep -c '^<' || true)
+            if [ "$changed" -ne 1 ]; then
+              echo "::error::[${app}] expected one changed line in ${file}, got ${changed}."
+              exit 1
+            fi
+
+            file_sha=$(gh api "repos/${REPO}/contents/${file}?ref=${branch}" --jq .sha)
+            gh api -X PUT "repos/${REPO}/contents/${file}" \
+              -f message="chore(${app}): promote prd image tag to ${ref%%@*}" \
+              -f branch="$branch" -f sha="$file_sha" \
+              -f content="$(base64 -w0 "$file")" >/dev/null
+            git checkout -- "$file"
+            echo "[${app}] ${current} -> ${ref} on ${branch}."
+
+            if [ "$(gh pr list -R "$REPO" --head "$branch" --state open --json number --jq length)" -gt 0 ]; then
+              echo "[${app}] promotion PR already open; branch updated in place."
+              continue
+            fi
+            cat > /tmp/pr-body.md <<EOF
+          ## Why
+          Promote \`${app}\` in prd from \`${current}\` to \`${ref%%@*}\`, which is already running in non. Opened by [Promote PRD](${RUN_URL}).
+
+          ## Needs attention
+          - \`${file}\`: \`image.tag\` is now \`${ref}\`, the tag's multi-arch index digest.
+
+          ## Risk/rollout
+          Merging syncs prd through ArgoCD. To roll back, revert this PR.
+          EOF
+            gh pr create -R "$REPO" --base main --head "$branch" \
+              --title "chore(${app}): promote prd image tag to ${ref%%@*}" \
+              --body-file /tmp/pr-body.md
+          done < candidates.txt

@@ -31,8 +31,10 @@ yq '.apps | length' argocd/non/config.yaml   # config sanity; CI also checks pat
   `chore(meowbot): update app version to version X.Y.Z`). `image.tag` is empty
   in `values.yaml` and `values-non.yaml`, so non-prod follows `appVersion` and
   ArgoCD rolls it automatically.
-- Prod is pinned by `image.tag` in `charts/meowbot/values-prd.yaml`. Promote
-  by PR that bumps that tag to a version already running healthy in non.
+- Prod is pinned by `image.tag` in `charts/meowbot/values-prd.yaml` as
+  `X.Y.Z@sha256:<index digest>`. Never hand-edit it: `promote-prd.yml` opens
+  the promotion PR on every appVersion bump (or by `workflow_dispatch`), and
+  a code owner approves it once the version is healthy in non.
 - Merging to `main` also runs `release.yaml` (chart-releaser publishes charts).
 - A change is done when ArgoCD shows the app Synced and Healthy, not at green
   CI. Ask before anything that restarts prod or deletes data.

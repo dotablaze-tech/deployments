@@ -1,0 +1,10 @@
+# Last matching pattern wins. Deliberately no catch-all: an unowned path needs
+# no code-owner approval, which is what lets the platform release push its
+# appVersion bumps and other PRs merge without a second person. Ownership here
+# is a gate, so only gate what needs gating.
+
+# Production-facing paths need an explicit code-owner review before a pull
+# request touching them can merge. Enforced by the "PRD Promotion Review Gate"
+# repository ruleset (require_code_owner_review).
+/charts/*/values-prd.yaml @jdwillmsen
+/argocd/prd/ @jdwillmsen

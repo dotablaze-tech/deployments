@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - main
+    # Chart-only: appVersion bumps live under charts/ too, so they still trigger.
+    paths:
+      - 'charts/**'
   workflow_dispatch:
+
+permissions: {}
+
+# Serialise runs: each one rewrites the shared gh-pages index.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -13,9 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # chart-releaser pushes the gh-pages index with the checkout's credentials.
+          persist-credentials: true
 
       - name: Configure Git
         run: |
@@ -23,9 +35,11 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
+        uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
         with:
-          charts_dir: 'charts'
+          charts_dir: charts
+          # A push that changes a chart without bumping its version (e.g. appVersion only)
+          # would otherwise fail on the already-existing release.
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_SKIP_EXISTING: true

@@ -65,7 +65,7 @@ apps:
 1. Create the Helm chart under `charts/<name>/`
 2. Add base `values.yaml` and per-environment `values-<env>.yaml` files
 3. Add an entry to each relevant `argocd/<env>/config.yaml`
-4. Commit and push to `main`
+4. Open a PR to `main`; Argo CD syncs after it merges
 
 ## Adding a New Environment
 
@@ -93,9 +93,10 @@ The following must exist in the cluster before deploying (all managed by the pla
 - Tenant namespaces provisioned by the platform
 - External Secrets Operator (ESO) installed
 - `vault` ClusterSecretStore (platform-managed, reads from Vault)
-- `k8s-secret-store` ClusterSecretStore (platform-manged, reads from `database` namespace)
+- `k8s-secret-store` ClusterSecretStore (platform-managed, reads from `database` namespace)
 - cert-manager with `letsencrypt-prod` ClusterIssuer
-- nginx ingress controller
+- Gateway API gateway `platform-gateway` in the `nginx-gateway` namespace (charts attach an `HTTPRoute` to it)
+- Stakater Reloader, if secret changes should restart pods (charts opt in with `secret.reloader.stakater.com/reload` annotations)
 - CNPG PostgreSQL clusters in the `database` namespace
 
-Secret store are managed centrally by the platform - no per-tenant secret store setup is needed.
+Secret stores are managed centrally by the platform - no per-tenant secret store setup is needed.

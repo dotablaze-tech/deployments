@@ -26,7 +26,7 @@ yq '.apps | length' argocd/non/config.yaml   # config sanity; CI also checks pat
 
 ## Release flow
 
-- `dotablaze-tech/platform` CI pushes `appVersion` in
+- `dotablaze-tech/apps` CI pushes `appVersion` in
   `charts/meowbot/Chart.yaml` straight to `main` (commit
   `chore(meowbot): update app version to version X.Y.Z`). `image.tag` is empty
   in `values.yaml` and `values-non.yaml`, so non-prod follows `appVersion` and

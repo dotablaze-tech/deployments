@@ -5,7 +5,7 @@
 [![Docs](https://img.shields.io/badge/docs-github--pages-blue)](https://dotablaze-tech.github.io/deployments/)
 [![meowbot Chart Version](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdotablaze-tech%2Fdeployments%2Fmain%2Fcharts%2Fmeowbot%2FChart.yaml&query=%24.appVersion&prefix=v&label=meowbot)](https://github.com/dotablaze-tech/deployments/blob/main/charts/meowbot/Chart.yaml)
 
-GitOps deployment repository for the `dotablaze-tech` tenant on the dotablaze-tech platform. ArgoCD reads this repo via
+GitOps deployment repository for the `dotablaze-tech` tenant on the [jdwlabs platform](https://github.com/jdwlabs/platform). ArgoCD reads this repo via
 the
 `dotablaze-tech-deployments` ApplicationSet to deploy applications into tenant-owned namespaces.
 
@@ -85,7 +85,7 @@ apps:
 `prd` pins `image.tag` in `charts/<app>/values-prd.yaml` to `<tag>@sha256:<index digest>`, so a re-pushed tag cannot
 change what prod runs. [`promote-prd.yml`](.github/workflows/promote-prd.yml) opens the PR that moves it:
 
-- **Automatically** whenever a `Chart.yaml` changes on `main`, which is how the platform release lands a new
+- **Automatically** whenever a `Chart.yaml` changes on `main`, which is how the apps release lands a new
   `appVersion`. The PR stays open until a code owner approves it, so verify the version in `non` first.
 - **By hand:** `gh workflow run promote-prd.yml -f app=meowbot [-f tag=1.0.6]`. Pass `tag=X.Y.Z@sha256:<digest>` to pin
   an exact build, e.g. to roll back.
@@ -102,7 +102,7 @@ PR and CI runs on it. Without them it falls back to `GITHUB_TOKEN`, whose PRs tr
 
 ## Prerequisites
 
-The following must exist in the cluster before deploying (all managed by the platform repo):
+The following must exist in the cluster before deploying (all managed by [jdwlabs/platform](https://github.com/jdwlabs/platform)):
 
 - Tenant namespaces provisioned by the platform
 - External Secrets Operator (ESO) installed
@@ -132,4 +132,4 @@ directory with an admin `gh` login:
 - **Branch Naming Convention**: branches start with `feat/`, `fix/`, `chore/`, `docs/` and similar, or `renovate/`.
 - **Release Tag Protection**: tags cannot be deleted or moved.
 
-Org admins bypass all rulesets. The platform release job's `appVersion` push depends on that bypass.
+Org admins bypass all rulesets. The apps release job's `appVersion` push depends on that bypass.

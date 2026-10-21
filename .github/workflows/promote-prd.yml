@@ -5,7 +5,7 @@ name: Promote PRD
 # PRD Promotion Review Gate holds for a code-owner review.
 #
 # Triggers:
-# - push to main touching a Chart.yaml: the platform release bumps appVersion
+# - push to main touching a Chart.yaml: the apps release bumps appVersion
 #   there, so every release that reaches non gets a promotion proposal.
 # - workflow_dispatch: promote one chart, optionally to an explicit tag
 #   (defaults to its appVersion; a tag@sha256:<digest> is used as given, which

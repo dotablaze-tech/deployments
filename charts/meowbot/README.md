@@ -39,7 +39,7 @@ Argo CD deploys this chart from the `dotablaze-tech-deployments` ApplicationSet 
 
 Image tag is `image.tag`, falling back to `appVersion` in `Chart.yaml`:
 
-- **non** leaves `image.tag` empty. The platform release job (`tools/update-app.sh`) pushes each new `appVersion` to
+- **non** leaves `image.tag` empty. The apps release job (`tools/update-app.sh`) pushes each new `appVersion` to
   `main`, so non follows every release automatically.
 - **prd** pins `image.tag` in `values-prd.yaml`. Promote by opening a PR that changes it.
 

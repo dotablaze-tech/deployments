@@ -1,5 +1,5 @@
 # Last matching pattern wins. Deliberately no catch-all: an unowned path needs
-# no code-owner approval, which is what lets the platform release push its
+# no code-owner approval, which is what lets the apps release push its
 # appVersion bumps and other PRs merge without a second person. Ownership here
 # is a gate, so only gate what needs gating.
 

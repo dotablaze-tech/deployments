@@ -20,9 +20,22 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
+# 65532 is the distroless nonroot user; the image declares it by name, which
+# kubelet cannot verify against runAsNonRoot, so the numeric ID is pinned here.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
 
-securityContext: {}
+# The bot writes nothing to disk, so a read-only root filesystem is safe.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
 
 service:
   type: ClusterIP

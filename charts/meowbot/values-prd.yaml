@@ -1,5 +1,5 @@
 image:
-  tag: "1.0.4"
+  tag: "1.0.9@sha256:622cd32c69e0593e0e2fe5749f5ea2b98c288f14b75e2db51b0f05de9b22b72a"
 
 ingress:
   hosts:

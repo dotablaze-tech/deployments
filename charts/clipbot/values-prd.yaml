@@ -1,0 +1,39 @@
+image:
+  # Pinned by promote-prd.yml as <tag>@sha256:<digest> once the first release exists.
+  tag: ""
+
+ingress:
+  hosts:
+    - host: clipbot.prd.jdwlabs.com
+
+externalSecrets:
+  - refreshInterval: 1m
+    secretStoreName: vault
+    secretName: clipbot-prd
+
+# One Vault entry serves both envs (one channel). Property names must match
+# what the owner stores at kv/dotablaze-tech-clipbot.
+envSecrets:
+  - secretKey: CLIP_KEY
+    key: dotablaze-tech-clipbot
+    property: clip_key
+    secretName: clipbot-prd
+  - secretKey: TWITCH_CLIENT_ID
+    key: dotablaze-tech-clipbot
+    property: client_id
+    secretName: clipbot-prd
+  - secretKey: TWITCH_CLIENT_SECRET
+    key: dotablaze-tech-clipbot
+    property: client_secret
+    secretName: clipbot-prd
+  - secretKey: TWITCH_REFRESH_TOKEN
+    key: dotablaze-tech-clipbot
+    property: refresh_token
+    secretName: clipbot-prd
+  - secretKey: TWITCH_BROADCASTER_ID
+    key: dotablaze-tech-clipbot
+    property: broadcaster_id
+    secretName: clipbot-prd
+
+deploymentAnnotations:
+  secret.reloader.stakater.com/reload: "clipbot-prd"
